@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel Exporter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .container h1 {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input[type="file"], select {
+            width: 100%;
+            padding: 10px;
+            font-size: 0.9rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        select {
+            appearance: none;
+            background: #ffffff;
+        }
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .radio-group label {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        .radio-group input {
+            margin-right: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            color: #ffffff;
+            background: #4CAF50;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Excel File Exporter</h1>
+    <form id="excel-form">
+        <div class="form-group">
+            <label for="excel-file">Upload Excel File:</label>
+            <input type="file" id="excel-file" accept=".xls,.xlsx" required>
+        </div>
+        <div class="form-group">
+            <label for="export-format">Choose Export Format (Dropdown):</label>
+            <select id="export-format">
+                <option value="" disabled selected>Select format</option>
+                <option value="svg">SVG</option>
+                <option value="eps">EPS</option>
+<!--                <option value="xml">XML</option>-->
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Choose Export Format (Radio Buttons):</label>
+            <div class="radio-group">
+                <label><input type="radio" name="format" value="general"> General</label>
+                <label><input type="radio" name="format" value="details"> Details</label>
+<!--                <label><input type="radio" name="format" value="xml"> XML</label>-->
+            </div>
+        </div>
+        <button type="submit">Export</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('excel-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const fileInput = document.getElementById('excel-file');
+        const radioInput = document.querySelector('input[name="format"]:checked');
+        const dropdownInput = document.getElementById('export-format');
+
+        if (fileInput.files.length === 0) {
+            alert('Please upload an Excel file.');
+            return;
+        }
+
+            const type = radioInput.value;
+            const outputFormat = dropdownInput.value;
+
+
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('outputFormat', outputFormat);
+        formData.append("type",type)
+        try {
+            const response = await fetch('http://localhost:3000/upload/excel', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to export file');
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            if (blob.type === 'image/svg+xml') {
+                displaySVG(url);
+            } else {
+                downloadFile(url, `exported_file.${outputFormat}`);
+            }
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        }
+    });
+
+    function downloadFile(url, fileName) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+    }
+
+    function displaySVG(url) {
+        window.open(url, '_blank');
+    }
+
+
+</script>
+</body>
+</html>
