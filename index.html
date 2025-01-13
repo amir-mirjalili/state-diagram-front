@@ -29,8 +29,19 @@
             color: #333;
         }
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 45px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
+
+        .form-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+
         label {
             display: block;
             font-size: 0.9rem;
@@ -39,6 +50,14 @@
         }
         input[type="file"], select {
             width: 100%;
+            padding: 10px;
+            font-size: 0.9rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        input[type="number"] {
+            width: 60px;
             padding: 10px;
             font-size: 0.9rem;
             border: 1px solid #ddd;
@@ -85,7 +104,7 @@
             <input type="file" id="excel-file" accept=".xls,.xlsx" required>
         </div>
         <div class="form-group">
-            <label for="export-format">Choose Export Format (Dropdown):</label>
+            <label for="export-format">Choose Export Format:</label>
             <select id="export-format">
                 <option value="" disabled selected>Select format</option>
                 <option value="svg">SVG</option>
@@ -94,12 +113,25 @@
             </select>
         </div>
         <div class="form-group">
-            <label>Choose Export Format (Radio Buttons):</label>
+            <label>Choose Export Format:</label>
             <div class="radio-group">
                 <label><input type="radio" name="format" value="general"> General</label>
                 <label><input type="radio" name="format" value="details"> Details</label>
-<!--                <label><input type="radio" name="format" value="xml"> XML</label>-->
             </div>
+        </div>
+        <div class="form-container">
+        <div class="form-group">
+            <label>
+                From Level:
+            </label>
+            <input type="number" name="fromLevel" min="0" max="8">
+        </div>
+        <div class="form-group">
+            <label>
+                To Level:
+            </label>
+            <input type="number" name="toLevel" min="0" max="8" style="margin-right: 180px">
+        </div>
         </div>
         <button type="submit">Export</button>
     </form>
@@ -128,7 +160,7 @@
         formData.append('outputFormat', outputFormat);
         formData.append("type",type)
         try {
-            const response = await fetch('http://localhost:3000/upload/excel', {
+            const response = await fetch('http://188.121.119.59:3000/upload/excel', {
                 method: 'POST',
                 body: formData,
             });
